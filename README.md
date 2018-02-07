@@ -43,7 +43,7 @@ mvn package
 
 ## Documentation
 
-For detailled information on how to configure and use the plugin please have a look at the [Documentation](docs/index.md).
+For detailled information on how to configure and use the plugin please have a look at the [Documentation](https://freddyffm.github.io/PDIPlugin-AWS-SNS/).
 
 
 
