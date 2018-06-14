@@ -541,7 +541,7 @@ public class SNSNotifyStepDialog extends BaseStepDialog implements StepDialogInt
 					prevFields = transMeta.getPrevStepFields(stepname);
 				} catch (KettleException e) {
 					prevFields = new RowMeta();
-					logError(BaseMessages.getString(PKG, "MQWriter.ErrorText.NoPrevFields"));
+					logError(BaseMessages.getString(PKG, "SNSNotifyStep.ErrorText.NoPrevFields"));
 				}
 				String[] prevStepFieldNames = prevFields.getFieldNames();
 				Arrays.sort(prevStepFieldNames);
