@@ -5,8 +5,10 @@ import org.pentaho.di.trans.step.BaseStep;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
 import com.amazonaws.AmazonClientException;
+import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import com.amazonaws.services.sns.model.AmazonSNSException;
@@ -29,6 +31,7 @@ public class AWS_SNS {
 	private String awsKeySecret;
 	private BaseStep baseStep;
 	private TransMeta transMeta;
+	private String awsCredChain;
 	
 	/**
 	 * 
@@ -44,6 +47,7 @@ public class AWS_SNS {
 		this.baseStep = (BaseStep) bst;
 		this.transMeta = t;
 		
+		this.awsCredChain = transMeta.environmentSubstitute(meta.getAWSCredChain());
 		this.awsKey = transMeta.environmentSubstitute(meta.getAWSKey());
 		this.awsKeySecret = transMeta.environmentSubstitute(meta.getAWSKeySecret());
 		this.awsRegion = transMeta.environmentSubstitute(meta.getAWSRegion());
@@ -58,16 +62,30 @@ public class AWS_SNS {
 	public boolean getAWSConnection() {
 		try {
 			baseStep.logBasic("Starting connection to AWS SNS");
-			BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.awsKey, this.awsKeySecret);
-			snsClient = (AmazonSNSClient) AmazonSNSClientBuilder.standard()
-					.withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-					.withRegion(transMeta.environmentSubstitute(this.awsRegion))
-					.build();
 			
-			baseStep.logBasic("Connected to SNS in Region " + this.awsRegion + " with API-Key >>" + this.awsKey + "<<");
-			
+			if (this.awsCredChain.equalsIgnoreCase("N")) { 
+				BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.awsKey, this.awsKeySecret);
+				snsClient = (AmazonSNSClient) AmazonSNSClientBuilder.standard()
+						.withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+						.withRegion(this.awsRegion)
+						.build();
+				
+				baseStep.logBasic("Connected to SNS in Region " + this.awsRegion + " with API-Key >>" + this.awsKey + "<<");
+				
+			} else {
+				AWSCredentialsProvider provider = new DefaultAWSCredentialsProviderChain();
+				snsClient = (AmazonSNSClient) AmazonSNSClientBuilder.standard()
+						.withCredentials(provider)
+						.build();
+				
+				baseStep.logBasic("Connected to SNS with provided Credentials Chain");
+			}
 			return true;
+			
 		} catch (AmazonClientException e) {			
+			baseStep.logError(e.getMessage());
+			
+		} catch (Exception e) {			
 			baseStep.logError(e.getMessage());
 		}		
 		
@@ -86,6 +104,7 @@ public class AWS_SNS {
 	
 		} catch (AmazonClientException e) {
 			baseStep.logError(e.getMessage());
+			baseStep.setErrors(1);
 		}
 		
 	}
@@ -99,7 +118,7 @@ public class AWS_SNS {
 	 * @param msg	Message Content
 	 * @return		SNS messageID on successfull publish
 	 */
-	public String publishToSNS(String tARN, String subj, String msg) {
+	public String publishToSNS(String tARN, String subj, String msg) throws AmazonSNSException {
 		
 		String topicARN = transMeta.environmentSubstitute(tARN);
 		String subject = transMeta.environmentSubstitute(subj);
@@ -113,11 +132,10 @@ public class AWS_SNS {
 			baseStep.logBasic(messageId);
 			return messageId;
 			
-		} catch (AmazonSNSException e) {
-			baseStep.logError(e.getErrorMessage());
+		} catch (AmazonSNSException e) {			
+			throw e;
+			
 		}
-		
-		return null;
 	}
 
 }

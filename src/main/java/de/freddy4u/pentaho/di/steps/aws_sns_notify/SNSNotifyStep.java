@@ -75,8 +75,13 @@ public class SNSNotifyStep extends BaseStep implements StepInterface {
 		
 		data.aws_sns = new AWS_SNS(smi, this.transMeta, this);
 		if (!data.aws_sns.getAWSConnection()) {
+			setErrors(1);
+			stopAll();
+			setOutputDone();
 			return false;
 		}
+		
+		data.realMessageIDField = transMeta.environmentSubstitute(meta.gettFldMessageID());
 
 		return super.init(meta, data);
 	}	
@@ -170,17 +175,35 @@ public class SNSNotifyStep extends BaseStep implements StepInterface {
 		
 		// Check if it is first row or notification is set for each row
 		if (meta.getNotifyPointShort().equals("each") || firstrow) {
-			Object[] outputRow = sendSNSNotification(meta, data, r);
-			if (outputRow != null) {
-				putRow(data.outputRowMeta, outputRow);
-				incrementLinesOutput();
+			
+			try {
+					
+				Object[] outputRow = sendSNSNotification(meta, data, r);
+				if (outputRow != null) {
+					putRow(data.outputRowMeta, outputRow);
+					incrementLinesOutput();
+					incrementLinesWritten();
+				}
+				
+			} catch (Exception e) {
+				
+				if (getStepMeta().isDoingErrorHandling()) {
+					putError(getInputRowMeta(), r, 1L, e.getMessage(), "", "SNSNotifyError");
+					
+				} else {
+					logError( "AWS SNS Error: " + e.getMessage() );
+			        setErrors( 1 );
+			        stopAll();
+			        setOutputDone(); // signal end to receiver(s)
+			        return false;
+			        
+				}
 			}
+				
 		} else {
 			putRow(data.outputRowMeta, r);
+			incrementLinesWritten();
 		}
-		
-		// incrementLinesWritten
-		incrementLinesWritten();
 
 		// log progress if it is time to to so
 		if (checkFeedback(getLinesRead())) {
@@ -199,8 +222,9 @@ public class SNSNotifyStep extends BaseStep implements StepInterface {
 	 * @param sdi	SNSNotifyStepData
 	 * @param row	Current processed row Object
 	 * @return		Modified row Object or null on error
+	 * @throws Exception 
 	 */
-	private Object[] sendSNSNotification(SNSNotifyStepMeta smi, SNSNotifyStepData sdi, Object[] row) {
+	private Object[] sendSNSNotification(SNSNotifyStepMeta smi, SNSNotifyStepData sdi, Object[] row) throws Exception {
 		
 		SNSNotifyStepMeta meta = (SNSNotifyStepMeta) smi;
 		SNSNotifyStepData data = (SNSNotifyStepData) sdi;
@@ -240,7 +264,7 @@ public class SNSNotifyStep extends BaseStep implements StepInterface {
 						
 				outputRowData = RowDataUtil.resizeArray(outputRowData, data.outputRowMeta.size());
 		
-				int indexOfMessID = data.outputRowMeta.indexOfValue(meta.gettFldMessageID());
+				int indexOfMessID = data.outputRowMeta.indexOfValue( data.realMessageIDField );
 				if (indexOfMessID >= 0) {
 					outputRowData[indexOfMessID] = messageID;
 				}
@@ -249,10 +273,11 @@ public class SNSNotifyStep extends BaseStep implements StepInterface {
 			return outputRowData;
 			
 		} catch (Exception e) {
-			logError(e.getMessage());
+			
+			//logError(e.getMessage());
+			throw e;
+			
 		}
-		
-		return null;
 	}
 
 	/**
@@ -275,5 +300,7 @@ public class SNSNotifyStep extends BaseStep implements StepInterface {
 		
 		super.dispose(meta, data);
 	}
+	
+	
 
 }

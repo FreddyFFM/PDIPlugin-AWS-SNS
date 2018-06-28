@@ -2,13 +2,13 @@
 
 ## Preconditions
 
-Before the first execution you need to create an IAM-User with an AWS Key and Secret and attach the required policies for pushing notifications via SNS.  
+Before the first execution you need to create an IAM-Role (e.g. for usage on EC2/ECS) or an IAM-User with an AWS Key and Secret and attach the required policies for pushing notifications via SNS.  
 You also need to create one ore more subscription topics you want to push the messages to.
 
 
 ## Settings
 
-On the Settings Tab you need to define your AWS Credentials. These are
+On the Settings Tab you need to define your AWS Credentials. You can choose either to have the plugin search these credentials via the [AWS Credentials Chain][aws-chain] or provide the following:
 
 - your AWS Access Key,
 - the Secret for your AWS Access Key and
@@ -43,3 +43,5 @@ For each notification a Message-ID is retrieved from SNS. This can be written to
 The topicARN, subject and message can each either be read from the row or defined as a static value.
 
 ![Screenshot Notifications](screenshot_notifications.png)
+
+[aws-chain]: https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html

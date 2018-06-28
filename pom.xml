@@ -7,7 +7,7 @@
 	<groupId>de.freddy4u.pentaho.di.steps</groupId>
 	<artifactId>AWS-SNS-Notify-Plugin</artifactId>
 	<name>Pentaho Data Integration AWS SNS Plugin</name>
-	<version>0.9.0</version>
+	<version>0.9.1</version>
 	<url>https://github.com/FreddyFFM/PDIPlugin-AWS-SNS</url>
 	<!-- <packaging>jar</packaging> -->
 

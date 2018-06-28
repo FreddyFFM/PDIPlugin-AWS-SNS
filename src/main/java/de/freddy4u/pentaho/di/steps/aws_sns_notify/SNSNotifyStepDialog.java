@@ -118,6 +118,10 @@ public class SNSNotifyStepDialog extends BaseStepDialog implements StepDialogInt
 
 	private Label lblDevInfo;
 
+	private Label lblAWSCredChain;
+
+	private ComboVar tAWSCredChain;
+
 	/**
 	 * The constructor should simply invoke super() and save the incoming meta
 	 * object to a local variable, so it can conveniently read and write settings
@@ -274,12 +278,39 @@ public class SNSNotifyStepDialog extends BaseStepDialog implements StepDialogInt
 		settingsLayout.marginHeight = 3;
 		settingsComp.setLayout(settingsLayout);
 		
+		// Use AWS Credentials Provider Chain
+		// Credentials Chain
+		lblAWSCredChain = new Label(settingsComp, SWT.RIGHT);
+		props.setLook(lblAWSCredChain);
+		FormData fd_lblAWSCredChain = new FormData();
+		fd_lblAWSCredChain.left = new FormAttachment(0, 0);
+		fd_lblAWSCredChain.top = new FormAttachment(0, margin);
+		fd_lblAWSCredChain.right = new FormAttachment(middle, -margin);
+		lblAWSCredChain.setLayoutData(fd_lblAWSCredChain);
+		lblAWSCredChain.setText(BaseMessages.getString(PKG, "SNSNotifyStep.Settings.AWSCredChain.Label"));
+		
+		tAWSCredChain = new ComboVar(transMeta, settingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+		props.setLook(tAWSCredChain);
+		FormData fd_tAWSCredChain = new FormData();
+		fd_tAWSCredChain.top = new FormAttachment(0, margin);
+		fd_tAWSCredChain.left = new FormAttachment(middle, 0);
+		fd_tAWSCredChain.right = new FormAttachment(100, 0);
+		tAWSCredChain.setLayoutData(fd_tAWSCredChain);
+		tAWSCredChain.setToolTipText(BaseMessages.getString(PKG, "SNSNotifyStep.Settings.AWSCredChain.Tooltip"));		
+		tAWSCredChain.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent arg0) {
+				changeCredentialChainSelection();				
+			}			
+		});
+		
 		// AWS Key
 		lblAWSKey = new Label(settingsComp, SWT.RIGHT);
 		props.setLook(lblAWSKey);
 		FormData fd_lblAWSKey = new FormData();
 		fd_lblAWSKey.left = new FormAttachment(0, 0);
-		fd_lblAWSKey.top = new FormAttachment(0, margin);
+		fd_lblAWSKey.top = new FormAttachment(tAWSCredChain, margin);
 		fd_lblAWSKey.right = new FormAttachment(middle, -margin);
 		lblAWSKey.setLayoutData(fd_lblAWSKey);
 		lblAWSKey.setText(BaseMessages.getString(PKG, "SNSNotifyStep.Settings.AWSKey.Label"));
@@ -287,7 +318,7 @@ public class SNSNotifyStepDialog extends BaseStepDialog implements StepDialogInt
 		tAWSKey = new TextVar(transMeta, settingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 		props.setLook(tAWSKey);
 		FormData fd_tAWSKey = new FormData();
-		fd_tAWSKey.top = new FormAttachment(0, margin);
+		fd_tAWSKey.top = new FormAttachment(tAWSCredChain, margin);
 		fd_tAWSKey.left = new FormAttachment(middle, 0);
 		fd_tAWSKey.right = new FormAttachment(100, 0);
 		tAWSKey.setLayoutData(fd_tAWSKey);
@@ -511,7 +542,8 @@ public class SNSNotifyStepDialog extends BaseStepDialog implements StepDialogInt
 		setSize();
 
 		// populate the dialog with the values from the meta object
-		populateDialog();
+		populateYesNoSelection();
+		populateDialog();		
 		
 		// restore the changed flag to original value, as the modify listeners fire during dialog population 
 		meta.setChanged(changed);
@@ -528,6 +560,44 @@ public class SNSNotifyStepDialog extends BaseStepDialog implements StepDialogInt
 		return stepname;
 	}
 	
+	protected void changeCredentialChainSelection() {
+		// Output-Info set in fields
+		if (tAWSCredChain.getText().equalsIgnoreCase("Y")) {
+
+			// Settings-Fields
+			lblAWSKey.setEnabled(false);
+			tAWSKey.setEnabled(false);
+			lblAWSKeySecret.setEnabled(false);
+			tAWSKeySecret.setEnabled(false);
+			lblAWSRegion.setEnabled(false);
+			tAWSRegion.setEnabled(false);
+
+			// Output-Info set in Config
+		} else {
+
+			// Settings-Fields
+			lblAWSKey.setEnabled(true);
+			tAWSKey.setEnabled(true);
+			lblAWSKeySecret.setEnabled(true);
+			tAWSKeySecret.setEnabled(true);
+			lblAWSRegion.setEnabled(true);
+			tAWSRegion.setEnabled(true);
+
+		}
+
+		meta.setChanged();
+		
+	}
+	
+	private void populateYesNoSelection() {
+		
+		tAWSCredChain.removeAll();				
+		tAWSCredChain.add("Y");
+		tAWSCredChain.add("N");
+		tAWSCredChain.select(0);
+
+	}	
+
 	/**
 	 * This methods set the Input-Fields in Column Field for each table-row
 	 */
@@ -581,6 +651,8 @@ public class SNSNotifyStepDialog extends BaseStepDialog implements StepDialogInt
 	 */
 	private void populateDialog() {
 		wStepname.selectAll();
+		
+		tAWSCredChain.setText(meta.getAWSCredChain());
 		tAWSKey.setText(meta.getAWSKey());	
 		tAWSKeySecret.setText(meta.getAWSKeySecret());
 		tAWSRegion.setText(meta.getAWSRegion());
@@ -627,7 +699,9 @@ public class SNSNotifyStepDialog extends BaseStepDialog implements StepDialogInt
 		// The "stepname" variable will be the return value for the open() method. 
 		// Setting to step name from the dialog control
 		stepname = wStepname.getText(); 
+		
 		// Setting the  settings to the meta object
+		meta.setAWSCredChain(tAWSCredChain.getText());
 		meta.setAWSKey(tAWSKey.getText());
 		meta.setAWSKeySecret(tAWSKeySecret.getText());
 		meta.setAWSRegion(tAWSRegion.getText());

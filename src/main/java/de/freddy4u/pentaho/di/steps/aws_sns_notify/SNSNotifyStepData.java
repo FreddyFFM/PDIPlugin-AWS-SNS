@@ -40,6 +40,7 @@ public class SNSNotifyStepData extends BaseStepData implements StepDataInterface
 	public int indexOfFieldSubject;
 	public int indexOfFieldMessage;
 	public AWS_SNS aws_sns;
+	public String realMessageIDField;
 	
     public SNSNotifyStepData()
 	{

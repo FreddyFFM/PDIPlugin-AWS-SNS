@@ -77,6 +77,7 @@ public class SNSNotifyStepMeta extends BaseStepMeta implements StepMetaInterface
 	 */
 	private static Class<?> PKG = SNSNotifyStepMeta.class; // for i18n purposes
 	
+	private String awsCredChain;
 	private String awsKey;
 	private String awsKeySecret;
 	private String awsRegion;
@@ -143,6 +144,14 @@ public class SNSNotifyStepMeta extends BaseStepMeta implements StepMetaInterface
 		// outputField = "demo_field";
 	}
 	
+	public String getAWSCredChain() {
+		return awsCredChain == null ? "N" : awsCredChain;
+	}
+
+	public void setAWSCredChain(String awsCredChain) {
+		this.awsCredChain = awsCredChain;
+	}
+
 	public String getAWSKey() {
 		return awsKey == null ? "" : awsKey;
 	}
@@ -303,6 +312,7 @@ public class SNSNotifyStepMeta extends BaseStepMeta implements StepMetaInterface
 		
 		// only one field to serialize
 		String xml = "";
+		xml += XMLHandler.addTagValue("AWSCredChain", awsCredChain);
 		xml += XMLHandler.addTagValue("AWSKey", awsKey);
 		xml += XMLHandler.addTagValue("AWSKeySecret", awsKeySecret);
 		xml += XMLHandler.addTagValue("AWSRegion", awsRegion);
@@ -333,6 +343,7 @@ public class SNSNotifyStepMeta extends BaseStepMeta implements StepMetaInterface
 	public void loadXML(Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore) throws KettleXMLException {
 
 		try {
+			setAWSCredChain(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "AWSCredChain")));
 			setAWSKey(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "AWSKey")));
 			setAWSKeySecret(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "AWSKeySecret")));
 			setAWSRegion(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "AWSRegion")));
@@ -364,6 +375,7 @@ public class SNSNotifyStepMeta extends BaseStepMeta implements StepMetaInterface
 	public void saveRep(Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step) throws KettleException {
 		
 		try{
+			rep.saveStepAttribute(id_transformation, id_step, "AWSCredChain", awsCredChain); //$NON-NLS-1$
 			rep.saveStepAttribute(id_transformation, id_step, "AWSKey", awsKey); //$NON-NLS-1$
 			rep.saveStepAttribute(id_transformation, id_step, "AWSKeySecret", awsKeySecret); //$NON-NLS-1$
 			rep.saveStepAttribute(id_transformation, id_step, "AWSRegion", awsRegion); //$NON-NLS-1$
@@ -397,6 +409,7 @@ public class SNSNotifyStepMeta extends BaseStepMeta implements StepMetaInterface
 	public void readRep(Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases) throws KettleException  {
 		
 		try{
+			awsCredChain  = rep.getStepAttributeString(id_step, "AWSCredChain"); //$NON-NLS-1$
 			awsKey  = rep.getStepAttributeString(id_step, "AWSKey"); //$NON-NLS-1$
 			awsKeySecret  = rep.getStepAttributeString(id_step, "AWSKeySecret"); //$NON-NLS-1$
 			awsRegion  = rep.getStepAttributeString(id_step, "AWSRegion"); //$NON-NLS-1$
@@ -488,7 +501,7 @@ public class SNSNotifyStepMeta extends BaseStepMeta implements StepMetaInterface
 		}	
 		
 		// Check for Credentials
-		if (getAWSKey().isEmpty() || getAWSKeySecret().isEmpty() || getAWSRegion().isEmpty()) {
+		if ((getAWSCredChain() == "N") && (getAWSKey().isEmpty() || getAWSKeySecret().isEmpty() || getAWSRegion().isEmpty())) {
 			cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(PKG, "SNSNotify.CheckResult.AWSCredentials.ERROR"), stepMeta);
 			remarks.add(cr);
 		} else {
@@ -529,6 +542,9 @@ public class SNSNotifyStepMeta extends BaseStepMeta implements StepMetaInterface
 		}
     	
 	}
-
-
+	
+	public boolean supportsErrorHandling() {
+		return true;
+	}
+	
 }
