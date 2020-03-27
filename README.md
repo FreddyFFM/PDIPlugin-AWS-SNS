@@ -8,11 +8,7 @@ to subscribed users.
 
 ## System Requirements
 
-- Pentaho Data Integration 7.0 or above
-- Copy following jar files to ${DI\_HOME}/lib
-    - [Jackson Databind][jackson] (Version 2.9.3 or higher - current version needs to be replaced)
-    - [Amazon Java SDK for SNS][aws-sdk] (Version 1.11.269 or higher)
-    - [Joda Time][joda] (Version 2.9.9 or higher - current version needs to be replaced)
+- Pentaho Data Integration 7.1 or above
 
 
 
@@ -26,8 +22,10 @@ to subscribed users.
 **Manual Install**
 
 1. Create ${DI\_HOME}/plugins/steps/AWS-SNS-Notify directory (if not exists)
-2. Copy the AWS-SNS-Notify-Plugin jar into the ${DI\_HOME}/plugins/steps/AWS-SNS-Notify directory
-3. Restart Spoon
+2. Create ${DI\_HOME}/plugins/steps/AWS-SNS-Notify/lib directory (if not exists)
+3. Copy/Replace the AWS-SNS-Notify-Plugin jar into the ${DI\_HOME}/plugins/steps/AWS-SNS-Notify directory
+4. Copy/Replace the lib/ folder into the ${DI\_HOME}/plugins/steps/AWS-SNS-Notify/lib directory
+5. Restart Spoon
 
 
 

@@ -404,7 +404,6 @@ public class SNSNotifyStepMeta extends BaseStepMeta implements StepMetaInterface
 	 * @param metaStore	the metaStore to optionally read from
 	 * @param id_step	the id of the step being read
 	 * @param databases	the databases available in the transformation
-	 * @param counters	the counters available in the transformation
 	 */
 	public void readRep(Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases) throws KettleException  {
 		
@@ -479,7 +478,7 @@ public class SNSNotifyStepMeta extends BaseStepMeta implements StepMetaInterface
 	 * - verify that the step finds fields it relies on in the row-stream
 	 * 
 	 *   @param remarks		the list of remarks to append to
-	 *   @param transmeta	the description of the transformation
+	 *   @param transMeta	the description of the transformation
 	 *   @param stepMeta	the description of the step
 	 *   @param prev		the structure of the incoming row-stream
 	 *   @param input		names of steps sending input to the step

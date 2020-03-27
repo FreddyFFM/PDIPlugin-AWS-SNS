@@ -624,7 +624,6 @@ public class SNSNotifyStepDialog extends BaseStepDialog implements StepDialogInt
 	/**
 	 * This method fills the CombarVar with all available AWS Regions
 	 * 
-	 * @param ComboVar tAWSRegion2
 	 */
 	private void populateAWSRegion(ComboVar tAWSRegion2) {
 		

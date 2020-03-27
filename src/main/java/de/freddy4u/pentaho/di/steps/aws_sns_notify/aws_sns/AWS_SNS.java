@@ -82,13 +82,11 @@ public class AWS_SNS {
 			}
 			return true;
 			
-		} catch (AmazonClientException e) {			
+		} catch (Exception e) {
 			baseStep.logError(e.getMessage());
-			
-		} catch (Exception e) {			
-			baseStep.logError(e.getMessage());
-		}		
-		
+
+		}
+
 		return false;
 	}
 	
