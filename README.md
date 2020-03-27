@@ -21,11 +21,8 @@ to subscribed users.
 
 **Manual Install**
 
-1. Create ${DI\_HOME}/plugins/steps/AWS-SNS-Notify directory (if not exists)
-2. Create ${DI\_HOME}/plugins/steps/AWS-SNS-Notify/lib directory (if not exists)
-3. Copy/Replace the AWS-SNS-Notify-Plugin jar into the ${DI\_HOME}/plugins/steps/AWS-SNS-Notify directory
-4. Copy/Replace the lib/ folder into the ${DI\_HOME}/plugins/steps/AWS-SNS-Notify/lib directory
-5. Restart Spoon
+1. Copy and Extract AWS-SNS-Notify-Plugin.zip into ${DI\_HOME}/plugins/steps/directory
+2. Restart Spoon
 
 
 
@@ -77,6 +74,3 @@ to easily respond to various events.
 
 
 [sns]: https://aws.amazon.com/sns/
-[jackson]: https://github.com/FasterXML/jackson-databind/wiki
-[aws-sdk]: https://aws.amazon.com/de/sdk-for-java/
-[joda]: https://github.com/JodaOrg/joda-time/releases
